@@ -3,7 +3,7 @@ import {
   createUser,
   getCurrentUser,
   updateUserProfile,
-} from '../controllers/user';
+} from '../controllers/userController';
 import { jwtCheck, jwtParse } from '../middleware/auth';
 import { validateUserRequest } from '../middleware/validation';
 
