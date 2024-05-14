@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Restaurant from '../models/restaurant';
 
+// Search for restaurant
 export const searchRestaurant = async (req: Request, res: Response) => {
   try {
     const city = req.params.city;
@@ -45,7 +46,6 @@ export const searchRestaurant = async (req: Request, res: Response) => {
     const pageSize = 10;
     const skip = (page - 1) * pageSize;
 
-    // sortOption = "lastUpdated"
     const restaurants = await Restaurant.find(query)
       .sort({ [sortOption]: 1 })
       .skip(skip)
@@ -64,6 +64,23 @@ export const searchRestaurant = async (req: Request, res: Response) => {
     };
 
     res.json(response);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Something went wrong' });
+  }
+};
+
+// Fetch restaurant details
+export const getRestaurantDetails = async (req: Request, res: Response) => {
+  try {
+    const restaurantId = req.params.restaurantId;
+    const restaurant = await Restaurant.findById(restaurantId);
+
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+
+    res.json(restaurant);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Something went wrong' });
