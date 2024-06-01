@@ -1,11 +1,11 @@
-import { Request, Response, response } from 'express';
+import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import Restaurant, { MenuItemType } from '../models/restaurant';
 import Order from '../models/order';
 
-const stripe = new Stripe(process.env.STRIPE_API_SECRET_KEY as string);
-const frontendUrl = process.env.FRONTEND_URL as string;
-const stripeEndpointSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
+const STRIPE = new Stripe(process.env.STRIPE_API_SECRET_KEY as string);
+const FRONTEND_URL = process.env.FRONTEND_URL as string;
+const STRIPE_ENDPOINT_SECRET = process.env.STRIPE_WEBHOOK_SECRET as string;
 
 type CheckoutSessionRequest = {
   cartItems: {
@@ -16,7 +16,8 @@ type CheckoutSessionRequest = {
 
   deliveryDetails: {
     email: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     address: {
       street: string;
       city: string;
@@ -31,10 +32,10 @@ export const stripeWebhookHandler = async (req: Request, res: Response) => {
 
   try {
     const sig = req.headers['stripe-signature'];
-    event = stripe.webhooks.constructEvent(
+    event = STRIPE.webhooks.constructEvent(
       req.body,
       sig as string,
-      stripeEndpointSecret
+      STRIPE_ENDPOINT_SECRET
     );
   } catch (error: any) {
     console.log(error);
@@ -139,7 +140,7 @@ const createSession = async (
   deliveryPrice: number,
   restaurantId: string
 ) => {
-  const sessionData = await stripe.checkout.sessions.create({
+  const sessionData = await STRIPE.checkout.sessions.create({
     line_items: lineItems,
     shipping_options: [
       {
@@ -158,8 +159,8 @@ const createSession = async (
       orderId,
       restaurantId,
     },
-    success_url: `${frontendUrl}/order-status?success=true`,
-    cancel_url: `${frontendUrl}/detail/${restaurantId}?cancelled=true`,
+    success_url: `${FRONTEND_URL}/order-status?success=true`,
+    cancel_url: `${FRONTEND_URL}/detail/${restaurantId}?cancelled=true`,
   });
 
   return sessionData;

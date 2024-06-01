@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Restaurant from '../models/restaurant';
 
-// Search for restaurant
+// SEARCH FOR RESTAURANTS
 export const searchRestaurant = async (req: Request, res: Response) => {
   try {
     const city = req.params.city;
@@ -70,7 +70,7 @@ export const searchRestaurant = async (req: Request, res: Response) => {
   }
 };
 
-// Fetch restaurant details
+// GET RESTAURANTS DETAILS
 export const getRestaurantDetails = async (req: Request, res: Response) => {
   try {
     const restaurantId = req.params.restaurantId;

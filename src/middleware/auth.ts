@@ -1,47 +1,40 @@
 import { Request, Response, NextFunction } from 'express';
-import { auth } from 'express-oauth2-jwt-bearer';
 import jwt from 'jsonwebtoken';
-import User from '../models/user';
+import UserModel from '../models/user';
 
 declare global {
   namespace Express {
     interface Request {
-      auth0Id: string;
       userId: string;
     }
   }
 }
 
-export const jwtCheck = auth({
-  audience: process.env.AUTH0_AUDIENCE,
-  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
-  tokenSigningAlg: process.env.AUTH0_TOKEN_SIGNING_ALG,
-});
-
-export const jwtParse = async (
+export const jwtCheck = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { authorization } = req.headers;
-
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    return res.sendStatus(401);
-  }
-
-  const accessToken = authorization.split(' ')[1];
+  let token;
+  token = req.cookies.jwt_yummy;
 
   try {
-    const decoded = jwt.decode(accessToken) as jwt.JwtPayload;
-    const auth0Id = decoded.sub;
+    if (!token) {
+      return res.sendStatus(401);
+    }
 
-    const user = await User.findOne({ auth0Id });
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as jwt.JwtPayload;
+
+    const { userId } = decoded;
+    const user = await UserModel.findOne({ _id: userId });
 
     if (!user) {
       return res.sendStatus(401);
     }
 
-    req.auth0Id = auth0Id as string;
     req.userId = user._id.toString();
     next();
   } catch (error) {

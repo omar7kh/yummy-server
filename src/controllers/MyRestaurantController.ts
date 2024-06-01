@@ -4,7 +4,7 @@ import cloudinary from 'cloudinary';
 import mongoose from 'mongoose';
 import Order from '../models/order';
 
-// UploadImage function
+// HANDLE UPLOAD IMAGE
 const uploadImage = async (file: Express.Multer.File) => {
   const image = file;
   const base64Image = Buffer.from(image.buffer).toString('base64');
@@ -14,6 +14,7 @@ const uploadImage = async (file: Express.Multer.File) => {
   return uploadResponse.url;
 };
 
+// CREATE RESTAURANT
 export const createRestaurant = async (req: Request, res: Response) => {
   try {
     const existingRestaurant = await Restaurant.findOne({ user: req.userId });
@@ -39,6 +40,7 @@ export const createRestaurant = async (req: Request, res: Response) => {
   }
 };
 
+// GET RESTAURANT
 export const getRestaurant = async (req: Request, res: Response) => {
   try {
     const restaurant = await Restaurant.findOne({ user: req.userId });
@@ -52,6 +54,7 @@ export const getRestaurant = async (req: Request, res: Response) => {
   }
 };
 
+// UPDATE RESTAURANT
 export const updateRestaurant = async (req: Request, res: Response) => {
   try {
     const restaurant = await Restaurant.findOne({
@@ -84,6 +87,7 @@ export const updateRestaurant = async (req: Request, res: Response) => {
   }
 };
 
+// GET RESTAURANT ORDERS
 export const getMyRestaurantOrders = async (req: Request, res: Response) => {
   try {
     const restaurant = await Restaurant.findOne({ user: req.userId });
@@ -102,11 +106,11 @@ export const getMyRestaurantOrders = async (req: Request, res: Response) => {
   }
 };
 
+// UPDATE ORDER STATUS
 export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
-
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ message: 'order not found' });

@@ -1,16 +1,13 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import 'dotenv/config';
-import mongoose from 'mongoose';
 import { v2 as cloudinary } from 'cloudinary';
 import userRoute from './routes/userRoute';
 import restaurantRoute from './routes/restaurantRoute';
 import myRestaurantRoute from './routes/myRestaurantRoute';
 import orderRoute from './routes/orderRoute';
-
-mongoose
-  .connect(process.env.MONGODB_CONNECTION as string)
-  .then(() => console.log('connected to MongoDB'));
+import { MDBConnect } from './mongoDB/connectMongoDB';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -21,10 +18,15 @@ cloudinary.config({
 const port = 5000;
 const app = express();
 
-app.use(cors());
-
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    methods: ['POST', 'GET', 'PUT', 'DELETE'],
+    credentials: true,
+  })
+);
+app.use(cookieParser());
 app.use('/api/order/checkout/webhook', express.raw({ type: '*/*' }));
-
 app.use(express.json());
 
 app.get('/health', async (req: Request, res: Response) => {
@@ -35,6 +37,8 @@ app.use('/api/user', userRoute);
 app.use('/api/my/restaurant', myRestaurantRoute);
 app.use('/api/restaurant', restaurantRoute);
 app.use('/api/order', orderRoute);
+
+MDBConnect();
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

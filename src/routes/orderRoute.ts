@@ -1,5 +1,5 @@
 import express from 'express';
-import { jwtCheck, jwtParse } from '../middleware/auth';
+import { jwtCheck } from '../middleware/auth';
 import {
   createCheckoutSession,
   getMyOrders,
@@ -8,11 +8,10 @@ import {
 
 const router = express.Router();
 
-router.get('/', jwtCheck, jwtParse, getMyOrders);
+router.get('/', jwtCheck, getMyOrders);
 router.post(
   '/checkout/create-checkout-session',
   jwtCheck,
-  jwtParse,
   createCheckoutSession
 );
 router.post('/checkout/webhook', stripeWebhookHandler);
